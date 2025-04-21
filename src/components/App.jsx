@@ -2,6 +2,8 @@ import { Component } from "react";
 import { Form } from "./Form/Form";
 import { ContactsList } from "./ContactsList/ContactsList";
 import { Filter } from "./Filter/Filter";
+import { Container } from "./Container/Container";
+import { GlobalStyle } from "GlobalStyle";
 
 export class App extends Component{
   state = {
@@ -14,6 +16,12 @@ export class App extends Component{
   }
 
   addContact = (newContact) =>{
+    const isContactExist = this.state.contacts.some(contact=>contact.name === newContact.name || contact.number === newContact.number)
+    console.log(isContactExist);
+    if(isContactExist){
+      alert("Rosie Simpson is already in contacts")
+      return 
+    }
       this.setState((prevState)=>({
         contacts: [...prevState.contacts, newContact]
       }))
@@ -28,28 +36,24 @@ export class App extends Component{
  }
 
 
-
-  // filteredContact = ()=>{
-  //   const normalizeText = this.state.filter.toLowerCase()
-
-  //   return this.state.contacts.filter((contact)=>{  
-  //     contact.name.includes(normalizeText)
-  //   })
-  // } 
-
   render(){
+      const filtered = this.state.contacts.filter(contact=>contact.name.toLowerCase().includes(this.state.filter.toLowerCase()))
 
     return  <>
-      <h1>Phonebook</h1>
+      <Container>
+      <h1 style={{color: "#2f4f2f" }}>Phonebook</h1>
 
 
       <Form addContact={this.addContact}/>
 
-      <h2>Contacts</h2>
+      <h2 style={{color: "#2f4f2f" }}>Contacts</h2>
 
       <Filter filterValue={this.state.filter} filterChange={this.filterChange}/>
 
-      {this.state.contacts.length === 0 ? <p>У вас немає контактів!</p> : <ContactsList deleteContact={this.deleteContact}  contacts={filtered}/>}
+      {this.state.contacts.length === 0 ? (<p>У вас немає контактів!</p>) : (<ContactsList deleteContact={this.deleteContact}  contacts={filtered}/>)}
+      </Container>
+
+      <GlobalStyle/>
     </>
   }
 }
