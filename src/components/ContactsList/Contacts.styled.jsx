@@ -21,7 +21,7 @@ export  const Contact = styled.li`
     
     padding: 16px;
 
-    border-radius: 15px;
+    border-radius: 16px;
 `
 
 export const DelButton = styled.button`
