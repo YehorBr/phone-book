@@ -1,6 +1,5 @@
-import { Component } from 'react';
 import { FormStyled, Button, Input, Label} from './Form.styled';
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 
 export const Form = ({addContact})=>{
  
