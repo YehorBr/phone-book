@@ -1,76 +1,72 @@
-import { Component } from "react";
-import { Form } from "./Form/Form";
-import { ContactsList } from "./ContactsList/ContactsList";
-import { Filter } from "./Filter/Filter";
-import { Container } from "./Container/Container";
-import { GlobalStyle } from "GlobalStyle";
+import { Component } from 'react';
+import { Form } from './Form/Form';
+import { ContactsList } from './ContactsList/ContactsList';
+import { Filter } from './Filter/Filter';
+import { Container } from './Container/Container';
+import { GlobalStyle } from 'GlobalStyle';
+import { useState, useEffect } from 'react';
 
-export class App extends Component{
-  state = {
-    contacts: [
-      {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-      {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-      {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-      {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},],
-    filter: '',
-  }
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
 
+  const [filter, setFilter] = useState('');
 
-
-  componentDidMount(){
-    const contacts = localStorage.getItem('contacts')
-    if(contacts){
-      const parsedContacts = JSON.parse(contacts)
-      this.setState({contacts: parsedContacts})
+  useEffect(() => {
+    const contacts = localStorage.getItem('contacts');
+    if (contacts) {
+      const parsedContacts = JSON.parse(contacts);
+      setContacts(parsedContacts);
     }
-  }
+  }, []);
 
-  componentDidUpdate(prevProps, prevState){
-    if(prevState.contacts !== this.state.contacts){
-      console.log(this.state.contacts);
-      localStorage.setItem("contacts", JSON.stringify(this.state.contacts))
+  useEffect(() => {
+    if(contacts.length === 0) return;
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const addContact = newContact => {
+    const isContactExist = contacts.some(
+      contact =>
+        contact.name === newContact.name || contact.number === newContact.number
+    );
+    if (isContactExist) {
+      alert('Rosie Simpson is already in contacts');
+      return;
     }
-  }
+    setContacts(prevState => [...prevState, newContact]);
+  };
 
-  addContact = (newContact) =>{
-    const isContactExist = this.state.contacts.some(contact=>contact.name === newContact.name || contact.number === newContact.number)
-    console.log(isContactExist);
-    if(isContactExist){
-      alert("Rosie Simpson is already in contacts")
-      return 
-    }
-      this.setState((prevState)=>({
-        contacts: [...prevState.contacts, newContact]
-      }))
-  }
+  const deleteContact = id => {
+    setContacts(prevState => prevState.filter(contact => contact.id !== id));
+  };
 
-  deleteContact= (id) =>{
-    this.setState((prevState)=>({contacts: prevState.contacts.filter((contact)=>contact.id !== id)}))
-  }
+  const filterChange = e => {
+    setFilter(e.target.value);
+  };
 
-  filterChange = e =>{
-    this.setState({filter: e.target.value})
- }
+  const filtered = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
-
-  render(){
-      const filtered = this.state.contacts.filter(contact=>contact.name.toLowerCase().includes(this.state.filter.toLowerCase()))
-
-    return  <>
+  return (
+    <>
       <Container>
-      <h1 style={{color: "#2f4f2f" }}>Phonebook</h1>
+        <h1 style={{ color: '#2f4f2f' }}>Phonebook</h1>
 
+        <Form addContact={addContact} />
 
-      <Form addContact={this.addContact}/>
+        <h2 style={{ color: '#2f4f2f' }}>Contacts</h2>
 
-      <h2 style={{color: "#2f4f2f" }}>Contacts</h2>
+        <Filter filterValue={filter} filterChange={filterChange} />
 
-      <Filter filterValue={this.state.filter} filterChange={this.filterChange}/>
-
-      {this.state.contacts.length === 0 ? (<p>У вас немає контактів!</p>) : (<ContactsList deleteContact={this.deleteContact}  contacts={filtered}/>)}
+        {contacts.length === 0 ? (
+          <p>У вас немає контактів!</p>
+        ) : (
+          <ContactsList deleteContact={deleteContact} contacts={filtered} />
+        )}
       </Container>
 
-      <GlobalStyle/>
+      <GlobalStyle />
     </>
-  }
-}
+  );
+};
